@@ -9,3 +9,6 @@ type User = {
   age: number;
   role?: "admin" | "guest";
 };
+
+let input = "";
+const didProvideInput = input ?? false;
