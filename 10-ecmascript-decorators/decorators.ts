@@ -19,13 +19,40 @@ function autobind(
   target: (...args: any[]) => any,
   ctx: ClassMemberDecoratorContext
 ) {
-  console.log(target, ctx);
-  console.log(ctx);
+  ctx.addInitializer(function (this: any) {
+    this[ctx.name] = this[ctx.name].bind(this);
+  });
+
+  return function (this: any) {
+    console.log("Executing original function");
+    target.apply(this);
+  };
+}
+
+function replacer<T>(initValue: T) {
+  return function replacerDecorator(
+    target: undefined,
+    ctx: ClassFieldDecoratorContext
+  ) {
+    console.log(target);
+    console.log(ctx);
+
+    return (initialValue: any) => {
+      console.log(initialValue);
+      return initValue;
+    };
+  };
 }
 
 @logger
 class Person {
+  @replacer("Okyanus")
   name = "ocean";
+
+  // constructor() {
+  //   this.greet = this.greet.bind(this);
+  // }
+
   @autobind
   greet() {
     console.log("hi, i am " + this.name);
@@ -33,5 +60,5 @@ class Person {
 }
 
 const max = new Person();
-max.greet(); // "hi, i am ocean"
-console.log(max); // Person { name: 'ocean', age: 35 }
+const greet = max.greet;
+greet();
