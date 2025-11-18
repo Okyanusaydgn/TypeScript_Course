@@ -34,74 +34,54 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     done = true;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-function logger(target, ctx) {
-    console.log("logger decorator");
-    console.log(target);
-    console.log(ctx);
+function SimpleLogger(target, ctx) {
+    console.log("[SimpleLogger] decorating:", String(ctx.name));
     return class extends target {
         constructor(...args) {
             super(...args);
-            console.log("class constructor");
-            console.log(this);
+            console.log("[SimpleLogger] instance created:", this);
         }
     };
 }
-function autobind(target, ctx) {
-    ctx.addInitializer(function () {
-        this[ctx.name] = this[ctx.name].bind(this);
-    });
-    return function () {
-        console.log("Executing original function");
-        target.apply(this);
+function logCall(target, ctx) {
+    return function (...args) {
+        // console.log(`[LogCall] ${String(ctx.name)} called with:`, args);
+        const result = target.apply(this, args);
+        console.log(`[LogCall] ${String(ctx.name)} result:`, result);
+        return result;
     };
 }
-function replacer(initValue) {
-    return function replacerDecorator(target, ctx) {
-        console.log(target);
-        console.log(ctx);
-        return (initialValue) => {
-            console.log(initialValue);
-            return initValue;
-        };
-    };
-}
-let Person = (() => {
-    let _classDecorators = [logger];
+let User = (() => {
+    let _classDecorators = [SimpleLogger];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _name_decorators;
-    let _name_initializers = [];
-    let _name_extraInitializers = [];
-    let _greet_decorators;
-    var Person = class {
+    let _sayHello_decorators;
+    var User = class {
         static { _classThis = this; }
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-            _name_decorators = [replacer("Okyanus")];
-            _greet_decorators = [autobind];
-            __esDecorate(this, null, _greet_decorators, { kind: "method", name: "greet", static: false, private: false, access: { has: obj => "greet" in obj, get: obj => obj.greet }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(null, null, _name_decorators, { kind: "field", name: "name", static: false, private: false, access: { has: obj => "name" in obj, get: obj => obj.name, set: (obj, value) => { obj.name = value; } }, metadata: _metadata }, _name_initializers, _name_extraInitializers);
+            _sayHello_decorators = [logCall];
+            __esDecorate(this, null, _sayHello_decorators, { kind: "method", name: "sayHello", static: false, private: false, access: { has: obj => "sayHello" in obj, get: obj => obj.sayHello }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-            Person = _classThis = _classDescriptor.value;
+            User = _classThis = _classDescriptor.value;
             if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        name = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _name_initializers, "ocean"));
-        // constructor() {
-        //   this.greet = this.greet.bind(this);
-        // }
-        greet() {
-            console.log("hi, i am " + this.name);
+        name = __runInitializers(this, _instanceExtraInitializers);
+        constructor(name) {
+            this.name = name;
         }
-        constructor() {
-            __runInitializers(this, _name_extraInitializers);
+        sayHello(greeting) {
+            console.log(`${greeting}, I'm ${this.name}`);
+            return this.name.length;
         }
     };
-    return Person = _classThis;
+    return User = _classThis;
 })();
-const max = new Person();
-const greet = max.greet;
-greet();
-//# sourceMappingURL=decorators.js.map
+const u1 = new User("Ocean");
+u1.sayHello("Hi");
+const u2 = new User("Max");
+u2.sayHello("Hello");
+//# sourceMappingURL=decorators-basci.js.map
